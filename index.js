@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const app=express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 
@@ -34,12 +34,48 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result)
     })
+     app.get('/addspots/:id',async(req,res)=>{
+        const id =req.params.id;
+        const query={_id : new ObjectId(id)}
+        const result = await addspotcollection.findOne(query)
+        res.send(result);
+
+     })
 
     app.post('/addspots',async(req,res)=>{
         const newaddspots = req.body;
         console.log(newaddspots);
         const result =await addspotcollection.insertOne(newaddspots);
         res.send(result);
+    })
+
+    app.put(`/addspots/:id`,async(req,res)=>{
+        const id =req.params.id;
+        const filter= {_id:new ObjectId(id)}
+        const options = {upsert : true};
+        const UpdaetedData= req.body;
+        const Updaeted ={
+            $set:{
+                photo:UpdaetedData.photo,
+                spot:UpdaetedData.spot,
+                country:UpdaetedData.country,
+                location:UpdaetedData.location,
+                description:UpdaetedData.description,
+                average:UpdaetedData.average,
+                seasonality:UpdaetedData.seasonality,
+                time:UpdaetedData.time,
+                totalVisitorsPerYear:UpdaetedData.totalVisitorsPerYear
+            }
+        }
+        const result = await addspotcollection.updateOne(filter,Updaeted,options);
+        res.send(result);
+    })
+
+    app.delete('/addspots/:id',async(req,res)=>{
+        const id =req.params.id;
+        const query={_id:new ObjectId(id)}
+        const result = await addspotcollection.deleteOne(query);
+        res.send(result)
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
