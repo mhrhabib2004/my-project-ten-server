@@ -28,6 +28,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     const addspotcollection = client.db('addspotDB').collection('spots');
+    const countryCollection = client.db('addspotDB').collection('countryName');
 
     app.get('/addspots',async(req,res)=>{
         const cursor= addspotcollection.find();
@@ -46,6 +47,7 @@ async function run() {
         const newaddspots = req.body;
         console.log(newaddspots);
         const result =await addspotcollection.insertOne(newaddspots);
+        
         res.send(result);
     })
 
@@ -70,6 +72,19 @@ async function run() {
         const result = await addspotcollection.updateOne(filter,Updaeted,options);
         res.send(result);
     })
+
+    app.post('/countries',async(req,res)=>{
+        countryName = req.body;
+        const result = await countryCollection.insertMany(countryName);
+        res.send(result);
+
+    })
+
+        app.get('/countries', async (req, res) => {
+            const cursor = countryCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
 
     app.delete('/addspots/:id',async(req,res)=>{
         const id =req.params.id;
